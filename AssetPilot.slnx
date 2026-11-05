@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AssetPilot.App/AssetPilot.App.csproj" />
+    <Project Path="src/AssetPilot.Backtest.Cli/AssetPilot.Backtest.Cli.csproj" />
+    <Project Path="src/AssetPilot.Backtest/AssetPilot.Backtest.csproj" />
+    <Project Path="src/AssetPilot.Core/AssetPilot.Core.csproj" />
+    <Project Path="src/AssetPilot.Infrastructure/AssetPilot.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AssetPilot.Backtest.Tests/AssetPilot.Backtest.Tests.csproj" />
+    <Project Path="tests/AssetPilot.Core.Tests/AssetPilot.Core.Tests.csproj" />
+  </Folder>
+</Solution>

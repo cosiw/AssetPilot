@@ -1,0 +1,8 @@
+<Project>
+  <!-- 모든 프로젝트 공통 설정 -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
