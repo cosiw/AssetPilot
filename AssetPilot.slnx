@@ -1,13 +1,47 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
   <Folder Name="/src/">
-    <Project Path="src/AssetPilot.App/AssetPilot.App.csproj" />
-    <Project Path="src/AssetPilot.Backtest.Cli/AssetPilot.Backtest.Cli.csproj" />
-    <Project Path="src/AssetPilot.Backtest/AssetPilot.Backtest.csproj" />
-    <Project Path="src/AssetPilot.Core/AssetPilot.Core.csproj" />
-    <Project Path="src/AssetPilot.Infrastructure/AssetPilot.Infrastructure.csproj" />
+    <Project Path="src/AssetPilot.App/AssetPilot.App.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="src/AssetPilot.Backtest.Cli/AssetPilot.Backtest.Cli.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="src/AssetPilot.Backtest/AssetPilot.Backtest.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="src/AssetPilot.Core/AssetPilot.Core.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="src/AssetPilot.Infrastructure/AssetPilot.Infrastructure.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="src/AssetPilot.SnapshotWorker/AssetPilot.SnapshotWorker.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/AssetPilot.Backtest.Tests/AssetPilot.Backtest.Tests.csproj" />
-    <Project Path="tests/AssetPilot.Core.Tests/AssetPilot.Core.Tests.csproj" />
+    <Project Path="tests/AssetPilot.App.Tests/AssetPilot.App.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="tests/AssetPilot.Backtest.Tests/AssetPilot.Backtest.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="tests/AssetPilot.Core.Tests/AssetPilot.Core.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
   </Folder>
 </Solution>

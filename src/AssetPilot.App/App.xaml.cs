@@ -1,5 +1,10 @@
+using System.IO;
 using System.Windows;
 using AssetPilot.App.ViewModels;
+using AssetPilot.Core.Accounts;
+using AssetPilot.Core.Snapshots;
+using AssetPilot.Infrastructure.Accounts;
+using AssetPilot.Infrastructure.Snapshots;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -19,15 +24,33 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder(e.Args)
             .ConfigureServices((context, services) =>
             {
-                // TODO: 포트 ← 어댑터 등록 (IPriceRepository, IBroker 등)
-                // TODO: services.AddHostedService<DailyDecisionService>();
+                services.AddSingleton<IWindowsCredentialManager, WindowsCredentialManager>();
+                services.AddSingleton<IKiwoomAccountStore, WindowsKiwoomAccountStore>();
+                services.AddSingleton(TimeProvider.System);
 
+                var databaseDirectory = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "AssetPilot");
+                Directory.CreateDirectory(databaseDirectory);
+                var snapshotStore = new SqliteAccountSnapshotStore(
+                    $"Data Source={Path.Combine(databaseDirectory, "assetpilot.db")}");
+                services.AddSingleton(snapshotStore);
+                services.AddSingleton<IAccountSnapshotStore>(snapshotStore);
+                services.AddSingleton<IAccountSnapshotReader>(snapshotStore);
+
+                services.AddSingleton<AssetHistoryViewModel>();
                 services.AddSingleton<MainViewModel>();
+                services.AddTransient<AccountManagementViewModel>();
+                services.AddTransient<AccountManagementWindow>();
                 services.AddSingleton<MainWindow>();
             })
             .Build();
 
         await _host.StartAsync();
+
+        await _host.Services.GetRequiredService<SqliteAccountSnapshotStore>().InitializeAsync();
+        var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
+        await mainViewModel.InitializeCommand.ExecuteAsync(null);
 
         var window = _host.Services.GetRequiredService<MainWindow>();
         window.Show();

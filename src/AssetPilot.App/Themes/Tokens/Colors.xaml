@@ -1,0 +1,28 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Color.AppBackground">#FFF7F8F9</Color>
+    <Color x:Key="Color.Surface">#FFFFFFFF</Color>
+    <Color x:Key="Color.TextPrimary">#FF172235</Color>
+    <Color x:Key="Color.TextSecondary">#FF667085</Color>
+    <Color x:Key="Color.Border">#FFDCE2EA</Color>
+    <Color x:Key="Color.BorderStrong">#FFAAB7C8</Color>
+    <Color x:Key="Color.Action">#FF123452</Color>
+    <Color x:Key="Color.ActionPressed">#FF0A2742</Color>
+    <Color x:Key="Color.Focus">#FF4B739E</Color>
+    <Color x:Key="Color.SelectionBackground">#FFEFF4F8</Color>
+    <Color x:Key="Color.MarketRise">#FFC63C4C</Color>
+    <Color x:Key="Color.MarketFall">#FF1E62B7</Color>
+
+    <SolidColorBrush x:Key="Brush.AppBackground" Color="{StaticResource Color.AppBackground}" />
+    <SolidColorBrush x:Key="Brush.Surface" Color="{StaticResource Color.Surface}" />
+    <SolidColorBrush x:Key="Brush.Text.Primary" Color="{StaticResource Color.TextPrimary}" />
+    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="{StaticResource Color.TextSecondary}" />
+    <SolidColorBrush x:Key="Brush.Border" Color="{StaticResource Color.Border}" />
+    <SolidColorBrush x:Key="Brush.Border.Strong" Color="{StaticResource Color.BorderStrong}" />
+    <SolidColorBrush x:Key="Brush.Action" Color="{StaticResource Color.Action}" />
+    <SolidColorBrush x:Key="Brush.Action.Pressed" Color="{StaticResource Color.ActionPressed}" />
+    <SolidColorBrush x:Key="Brush.Focus" Color="{StaticResource Color.Focus}" />
+    <SolidColorBrush x:Key="Brush.Selection.Background" Color="{StaticResource Color.SelectionBackground}" />
+    <SolidColorBrush x:Key="Brush.Market.Rise" Color="{StaticResource Color.MarketRise}" />
+    <SolidColorBrush x:Key="Brush.Market.Fall" Color="{StaticResource Color.MarketFall}" />
+</ResourceDictionary>

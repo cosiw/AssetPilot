@@ -1,8 +1,16 @@
 ﻿<Application x:Class="AssetPilot.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AssetPilot.App">
+             xmlns:converters="clr-namespace:AssetPilot.App.Converters">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:MarketValueBrushConverter x:Key="MarketValueBrushConverter"
+                                                   RiseBrush="{StaticResource Brush.Market.Rise}"
+                                                   FallBrush="{StaticResource Brush.Market.Fall}"
+                                                   NeutralBrush="{StaticResource Brush.Text.Primary}" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

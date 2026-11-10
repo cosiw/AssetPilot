@@ -3,12 +3,174 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
         xmlns:vm="clr-namespace:AssetPilot.App.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
-        Title="{Binding Title}" Height="600" Width="1000">
-    <Grid>
-        <TextBlock Text="{Binding Title}" FontSize="24"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+        Title="{Binding Title}"
+        Height="780" Width="1120" MinHeight="600" MinWidth="900"
+        Background="{StaticResource Brush.AppBackground}">
+    <Grid Margin="{StaticResource Padding.Window}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBlock Style="{StaticResource Text.PageTitle}" Text="보유 현황" />
+            <Button Grid.Column="1" Style="{StaticResource Button.Secondary}" Click="OpenAccountManagementButton_Click" Content="계좌 관리" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="{StaticResource Margin.SectionTop}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="230" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Style="{StaticResource Text.Label}" Text="계좌" />
+            <ComboBox Grid.Column="1" Margin="{StaticResource Margin.ControlAfter}" Style="{StaticResource ComboBox.Account}"
+                      DisplayMemberPath="AccountNumber" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" />
+            <Button Grid.Column="2" Margin="{StaticResource Margin.ControlAfter}" Command="{Binding RefreshCommand}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+                        <Setter Property="Content" Value="저장 기록 다시 읽기" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                <Setter Property="Content" Value="불러오는 중…" /><Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+
+        <TextBlock Grid.Row="2" Style="{StaticResource Text.ErrorMessage}" Text="{Binding StatusMessage}" />
+
+        <ScrollViewer Grid.Row="3" Margin="0,12,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <Border Style="{StaticResource Surface.Ledger}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                        <Border Style="{StaticResource Surface.SectionHeader}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBlock Style="{StaticResource Text.SectionTitle}" Text="계좌 요약" />
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                    <TextBlock HorizontalAlignment="Right" Style="{StaticResource Text.Label}" Text="{Binding SnapshotCapturedAtKorea, StringFormat=기준 시각: {0:yyyy.MM.dd HH:mm} KST}" />
+                                    <TextBlock HorizontalAlignment="Right" Style="{StaticResource Text.Label}" Text="가장 최근에 저장된 기록입니다." />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource Surface.SummaryCell}">
+                                <StackPanel><TextBlock Margin="{StaticResource Margin.LabelBottom}" Style="{StaticResource Text.Label}" Text="총자산" /><TextBlock Style="{StaticResource Text.MoneyLarge}" Text="{Binding Portfolio.TotalAssetAmount, StringFormat={}{0:N0}원}" /></StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource Surface.SummaryCell}">
+                                <StackPanel><TextBlock Margin="{StaticResource Margin.LabelBottom}" Style="{StaticResource Text.Label}" Text="평가금액" /><TextBlock Style="{StaticResource Text.MoneyLarge}" Text="{Binding Portfolio.TotalEvaluationAmount, StringFormat={}{0:N0}원}" /></StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource Surface.SummaryCell}">
+                                <StackPanel>
+                                    <TextBlock Margin="{StaticResource Margin.LabelBottom}" Style="{StaticResource Text.Label}" Text="예수금" />
+                                    <TextBlock Text="{Binding Portfolio.CashBalance, StringFormat={}{0:N0}원}">
+                                        <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Text.MoneyLarge}"><Style.Triggers><DataTrigger Binding="{Binding HasCashBalance}" Value="False"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="저장 전"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Text.Label}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasCashBalance}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="3" Style="{StaticResource Surface.SummaryCell}">
+                                <StackPanel><TextBlock Margin="{StaticResource Margin.LabelBottom}" Style="{StaticResource Text.Label}" Text="매입금액" /><TextBlock Style="{StaticResource Text.MoneyLarge}" Text="{Binding Portfolio.TotalPurchaseAmount, StringFormat={}{0:N0}원}" /></StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource Surface.SummaryCell}">
+                                <StackPanel><TextBlock Margin="{StaticResource Margin.LabelBottom}" Style="{StaticResource Text.Label}" Text="평가손익" /><TextBlock Style="{StaticResource Text.MoneyLarge}" Foreground="{Binding Portfolio.TotalProfitLoss, Converter={StaticResource MarketValueBrushConverter}}" Text="{Binding Portfolio.TotalProfitLoss, StringFormat={}{0:+#,0;-#,0;0}원}" /></StackPanel>
+                            </Border>
+                            <Border Grid.Column="5" Style="{StaticResource Surface.SummaryCell.Last}">
+                                <StackPanel><TextBlock Margin="{StaticResource Margin.LabelBottom}" Style="{StaticResource Text.Label}" Text="수익률" /><TextBlock Style="{StaticResource Text.MoneyLarge}" Foreground="{Binding Portfolio.TotalProfitRate, Converter={StaticResource MarketValueBrushConverter}}" Text="{Binding Portfolio.TotalProfitRate, StringFormat={}{0:+0.00;-0.00;0.00}%}" /></StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Margin="{StaticResource Margin.SectionTop}" Style="{StaticResource Surface.Table}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="300" /></Grid.RowDefinitions>
+                        <Border Style="{StaticResource Surface.SectionHeader}">
+                            <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Text.SectionTitle}" Text="보유 종목" /><TextBlock Margin="{StaticResource Margin.ControlAfter}" VerticalAlignment="Center" Style="{StaticResource Text.Label}" Text="저장된 기준 시각의 평가 결과입니다." /></StackPanel>
+                        </Border>
+                        <DataGrid Grid.Row="1" Style="{StaticResource DataGrid.Portfolio}" ItemsSource="{Binding Portfolio.Positions}">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="*" Header="종목" CellStyle="{StaticResource DataGridCell.FirstColumn}"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Margin="17,0,0,0" VerticalAlignment="Center"><TextBlock Style="{StaticResource Text.Body}" Text="{Binding StockName}" /><TextBlock Style="{StaticResource Text.Label}" Text="{Binding StockCode}" /></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                <DataGridTextColumn Width="90" Header="보유수량" Binding="{Binding Quantity, StringFormat={}{0:N0}주}" CellStyle="{StaticResource DataGridCell.Numeric}" ElementStyle="{StaticResource Text.DataGridNumeric}" />
+                                <DataGridTextColumn Width="110" Header="평균단가" Binding="{Binding AveragePrice, StringFormat={}{0:N0}원}" CellStyle="{StaticResource DataGridCell.Numeric}" ElementStyle="{StaticResource Text.DataGridNumeric}" />
+                                <DataGridTextColumn Width="110" Header="현재가" Binding="{Binding CurrentPrice, StringFormat={}{0:N0}원}" CellStyle="{StaticResource DataGridCell.Numeric}" ElementStyle="{StaticResource Text.DataGridNumeric}" />
+                                <DataGridTextColumn Width="120" Header="매입금액" Binding="{Binding PurchaseAmount, StringFormat={}{0:N0}원}" CellStyle="{StaticResource DataGridCell.Numeric}" ElementStyle="{StaticResource Text.DataGridNumeric}" />
+                                <DataGridTextColumn Width="120" Header="평가금액" Binding="{Binding EvaluationAmount, StringFormat={}{0:N0}원}" CellStyle="{StaticResource DataGridCell.Numeric}" ElementStyle="{StaticResource Text.DataGridNumeric}" />
+                                <DataGridTemplateColumn Width="120" Header="평가손익" CellStyle="{StaticResource DataGridCell.Numeric}"><DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock HorizontalAlignment="Right" Style="{StaticResource Text.DataGridNumeric}" Foreground="{Binding EvaluationProfitLoss, Converter={StaticResource MarketValueBrushConverter}}" Text="{Binding EvaluationProfitLoss, StringFormat={}{0:+#,0;-#,0;0}원}" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="95" Header="수익률" CellStyle="{StaticResource DataGridCell.Numeric}"><DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock HorizontalAlignment="Right" Style="{StaticResource Text.DataGridNumeric}" Foreground="{Binding ProfitRate, Converter={StaticResource MarketValueBrushConverter}}" Text="{Binding ProfitRate, StringFormat={}{0:+0.00;-0.00;0.00}%}" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <Border Margin="{StaticResource Margin.SectionTop}" Style="{StaticResource Surface.Table}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                        <Border Style="{StaticResource Surface.SectionHeader}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Style="{StaticResource Text.SectionTitle}" Text="자산 기록" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Command="{Binding AssetHistory.SelectRangeCommand}" CommandParameter="{x:Static vm:AssetHistoryRange.Week}" Content="1주">
+                                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource Button.Secondary}"><Setter Property="Height" Value="32" /><Setter Property="Padding" Value="11,0" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.IsWeekSelected}" Value="True"><Setter Property="Background" Value="{StaticResource Brush.Action}" /><Setter Property="BorderBrush" Value="{StaticResource Brush.Action}" /><Setter Property="Foreground" Value="{StaticResource Brush.Surface}" /></DataTrigger></Style.Triggers></Style></Button.Style>
+                                    </Button>
+                                    <Button Margin="6,0,0,0" Command="{Binding AssetHistory.SelectRangeCommand}" CommandParameter="{x:Static vm:AssetHistoryRange.Month}" Content="1개월">
+                                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource Button.Secondary}"><Setter Property="Height" Value="32" /><Setter Property="Padding" Value="11,0" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.IsMonthSelected}" Value="True"><Setter Property="Background" Value="{StaticResource Brush.Action}" /><Setter Property="BorderBrush" Value="{StaticResource Brush.Action}" /><Setter Property="Foreground" Value="{StaticResource Brush.Surface}" /></DataTrigger></Style.Triggers></Style></Button.Style>
+                                    </Button>
+                                    <Button Margin="6,0,0,0" Command="{Binding AssetHistory.SelectRangeCommand}" CommandParameter="{x:Static vm:AssetHistoryRange.ThreeMonths}" Content="3개월">
+                                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource Button.Secondary}"><Setter Property="Height" Value="32" /><Setter Property="Padding" Value="11,0" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.IsThreeMonthsSelected}" Value="True"><Setter Property="Background" Value="{StaticResource Brush.Action}" /><Setter Property="BorderBrush" Value="{StaticResource Brush.Action}" /><Setter Property="Foreground" Value="{StaticResource Brush.Surface}" /></DataTrigger></Style.Triggers></Style></Button.Style>
+                                    </Button>
+                                    <Button Margin="6,0,0,0" Command="{Binding AssetHistory.SelectRangeCommand}" CommandParameter="{x:Static vm:AssetHistoryRange.All}" Content="전체">
+                                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource Button.Secondary}"><Setter Property="Height" Value="32" /><Setter Property="Padding" Value="11,0" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.IsAllSelected}" Value="True"><Setter Property="Background" Value="{StaticResource Brush.Action}" /><Setter Property="BorderBrush" Value="{StaticResource Brush.Action}" /><Setter Property="Foreground" Value="{StaticResource Brush.Surface}" /></DataTrigger></Style.Triggers></Style></Button.Style>
+                                    </Button>
+                                    <TextBlock Margin="14,0,6,0" VerticalAlignment="Center" Style="{StaticResource Text.Label}" Text="기준일" />
+                                    <ComboBox Width="128"
+                                              Height="32"
+                                              Padding="10,0"
+                                              HorizontalContentAlignment="Left"
+                                              FontFamily="{StaticResource FontFamily.Numeric}"
+                                              Style="{StaticResource ComboBox.Account}"
+                                              ItemsSource="{Binding AssetHistory.AvailableSnapshotDates}"
+                                              SelectedItem="{Binding AssetHistory.SelectedSnapshotDate}">
+                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding StringFormat={}{0:yyyy.MM.dd}}" /></DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Row="1" Margin="20">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="250" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Text.SectionTitle}" Text="총자산 추이" /><TextBlock Margin="12,3,0,0" Style="{StaticResource Text.Label}" Text="총자산과 예수금은 저장된 일자 기준입니다." /></StackPanel>
+                            <Grid Grid.Row="1">
+                                <lvc:CartesianChart Series="{Binding AssetHistory.AssetSeries}" XAxes="{Binding AssetHistory.AssetHistoryXAxes}" YAxes="{Binding AssetHistory.AssetHistoryYAxes}" LegendPosition="Top" TooltipPosition="Top" ZoomMode="None" />
+                                <Border Background="{StaticResource Brush.Surface}"><Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.HasHistory}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource Text.StatusMessage}" Text="아직 저장된 자산 기록이 없습니다. 다음 예약 저장 후 표시됩니다." /></Border>
+                            </Grid>
+                            <TextBlock Grid.Row="2" Margin="0,8,0,0" Text="예수금 저장 전 데이터는 예수금 선이 비어 있습니다."><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Text.Label}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.HasCashBalanceGap}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Margin="{StaticResource Margin.SectionTop}" Style="{StaticResource Surface.Table}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="230" /></Grid.RowDefinitions>
+                        <Border Style="{StaticResource Surface.SectionHeader}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Text.SectionTitle}" Text="자산 구성" /><TextBlock Margin="{StaticResource Margin.ControlAfter}" VerticalAlignment="Center" Style="{StaticResource Text.Label}" Text="기준일의 국내주식 평가금액과 예수금입니다." /></StackPanel></Border>
+                        <Grid Grid.Row="1">
+                            <lvc:PieChart Series="{Binding AssetHistory.CompositionSeries}" LegendPosition="Right" InitialRotation="-90"><lvc:PieChart.Style><Style TargetType="lvc:PieChart"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.HasComposition}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></lvc:PieChart.Style></lvc:PieChart>
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AssetHistory.CompositionEmptyMessage}"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Text.StatusMessage}"><Style.Triggers><DataTrigger Binding="{Binding AssetHistory.HasComposition}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>

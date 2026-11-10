@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AssetPilot · 자산 기록</title>
+  <style>
+    :root {
+      --canvas: #f7f8f9;
+      --surface: #ffffff;
+      --ink: #172235;
+      --muted: #667085;
+      --line: #dce2ea;
+      --line-strong: #aab7c8;
+      --navy: #123452;
+      --navy-soft: #eff4f8;
+      --rise: #c63c4c;
+      --rise-soft: #fdf0f1;
+      --fall: #1e62b7;
+      --fall-soft: #eff5fc;
+      --gold: #c98a2d;
+      --numeric: Bahnschrift, "Segoe UI", sans-serif;
+      --korean: Pretendard, "Noto Sans KR", "Malgun Gothic", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--korean);
+      font-size: 14px;
+    }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { display: flex; flex-direction: column; max-width: 1200px; min-width: 920px; margin: 0 auto; padding: 38px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    h1 { margin: 0; font-size: 31px; line-height: 1.2; letter-spacing: -.8px; font-weight: 650; }
+    .updated { color: var(--muted); font-size: 12px; }
+    .filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .field { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; font-weight: 600; }
+    select, .date-button {
+      height: 36px; padding: 0 31px 0 11px; border: 1px solid var(--line-strong);
+      border-radius: 4px; background: var(--surface); color: var(--ink); outline: none;
+    }
+    .date-button { padding: 0 12px; }
+    select:focus, .date-button:focus, .range button:focus { outline: 2px solid #4b739e; outline-offset: 2px; }
+    .range { display: flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+    .range button { height: 36px; padding: 0 12px; border: 0; border-left: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 12px; }
+    .range button:first-child { border-left: 0; }
+    .range button.active { background: var(--navy); color: white; font-weight: 600; }
+    .summary { display: grid; grid-template-columns: 1.55fr 1fr 1fr 1fr; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+    .metric { min-height: 118px; padding: 19px 20px; border-left: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; }
+    .metric:first-child { border-left: 0; }
+    .metric-label { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .metric-value { font-family: var(--numeric); font-size: 24px; font-weight: 650; letter-spacing: -.5px; }
+    .metric-primary .metric-value { font-size: 30px; }
+    .metric-note { color: var(--muted); font-size: 12px; }
+    .up { color: var(--rise); }
+    .down { color: var(--fall); }
+    .content-grid { order: 4; display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(260px, .85fr); gap: 18px; margin-top: 18px; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+    .panel-head { display: flex; align-items: start; justify-content: space-between; padding: 18px 20px 13px; border-bottom: 1px solid var(--line); }
+    .chart-tools { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .panel h2 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -.25px; }
+    .sub { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .legend { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 11px; }
+    .legend i { width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 4px; background: var(--navy); }
+    .legend .cash { background: var(--gold); }
+    .chart { display: block; width: 100%; height: 238px; padding: 12px 14px 4px 8px; }
+    .axis-text { fill: #667085; font-family: var(--numeric); font-size: 10px; }
+    .grid-line { stroke: #e7ebf0; stroke-width: 1; }
+    .history-foot { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 10px 20px 14px; color: var(--muted); font-size: 11px; }
+    .allocation { padding: 18px 20px 20px; }
+    .donut-layout { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 8px; min-height: 150px; }
+    .donut { width: 120px; height: 120px; transform: rotate(-90deg); }
+    .donut circle { fill: none; stroke-width: 18; }
+    .donut .track { stroke: #edf0f4; }
+    .donut .a { stroke: #123452; stroke-dasharray: 301 377; stroke-dashoffset: 0; }
+    .donut .c { stroke: #c98a2d; stroke-dasharray: 76 377; stroke-dashoffset: -301; }
+    .alloc-list { padding: 0; margin: 0; list-style: none; }
+    .alloc-list li { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; color: var(--muted); font-size: 12px; border-bottom: 1px solid #eef1f4; }
+    .alloc-list li:last-child { border: 0; }
+    .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+    .alloc-list strong { color: var(--ink); font-family: var(--numeric); font-size: 12px; }
+    .positions { order: 3; margin-top: 18px; }
+    .positions .panel-head { align-items: center; }
+    .count { margin-left: 7px; color: var(--muted); font-size: 12px; font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; }
+    th { height: 38px; padding: 0 14px; background: #f8fafc; color: var(--muted); font-size: 11px; font-weight: 650; text-align: right; white-space: nowrap; }
+    th:first-child { padding-left: 20px; text-align: left; }
+    td { height: 57px; padding: 0 14px; border-top: 1px solid #edf0f4; font-family: var(--numeric); font-size: 13px; text-align: right; white-space: nowrap; }
+    td:first-child { padding-left: 20px; font-family: var(--korean); text-align: left; }
+    .stock { font-weight: 600; }
+    .code { margin-top: 2px; color: var(--muted); font-family: var(--numeric); font-size: 11px; font-weight: 400; }
+    .badge { display: inline-block; min-width: 57px; padding: 4px 6px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+    .badge.up { background: var(--rise-soft); }
+    .badge.down { background: var(--fall-soft); }
+    .table-note { padding: 12px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    @media (max-width: 960px) {
+      .shell { min-width: 0; padding: 22px; }
+      .topbar { align-items: start; gap: 16px; flex-direction: column; }
+      .summary { grid-template-columns: 1fr 1fr; }
+      .metric:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+      .metric:nth-child(4) { border-top: 1px solid var(--line); }
+      .content-grid { grid-template-columns: 1fr; }
+      .allocation { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .allocation .donut-layout { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>보유 현황</h1>
+        <p class="updated">현재가 기준 보유 현황 · 마지막 스냅샷 2026년 11월 9일 16:00</p>
+      </div>
+      <div class="filters" aria-label="조회 조건">
+        <label class="field">계좌
+          <select aria-label="계좌 선택"><option>종합계좌 · 12345678</option></select>
+        </label>
+      </div>
+    </header>
+
+    <section class="summary" aria-label="선택일 자산 요약">
+      <article class="metric metric-primary">
+        <span class="metric-label">총자산</span>
+        <strong class="metric-value">₩ 42,680,000</strong>
+        <span class="metric-note">전일 대비 <b class="up">+₩ 384,000 · +0.91%</b></span>
+      </article>
+      <article class="metric">
+        <span class="metric-label">평가금액</span>
+        <strong class="metric-value">₩ 34,160,000</strong>
+        <span class="metric-note">보유 종목 6개</span>
+      </article>
+      <article class="metric">
+        <span class="metric-label">예수금</span>
+        <strong class="metric-value">₩ 8,520,000</strong>
+        <span class="metric-note">총자산의 20.0%</span>
+      </article>
+      <article class="metric">
+        <span class="metric-label">누적 수익</span>
+        <strong class="metric-value up">+₩ 3,480,000</strong>
+        <span class="metric-note">수익률 <b class="up">+8.88%</b></span>
+      </article>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel" aria-labelledby="trend-title">
+        <div class="panel-head">
+          <div><h2 id="trend-title">자산 기록</h2><p class="sub">매일 저장한 총자산의 변화입니다. 입출금 표시는 거래 내역을 연결해 추가합니다.</p></div>
+          <div class="chart-tools">
+            <div class="range" aria-label="자산 기록 조회 기간">
+              <button type="button">1주</button><button type="button" class="active">1개월</button><button type="button">3개월</button><button type="button">전체</button>
+            </div>
+            <button class="date-button" type="button">기준일 2026.11.09 ▾</button>
+            <div class="legend"><span><i></i>총자산</span><span><i class="cash"></i>예수금</span></div>
+          </div>
+        </div>
+        <svg class="chart" viewBox="0 0 690 238" role="img" aria-label="10월 11일부터 11월 9일까지 총자산이 3천9백만원에서 4천2백육십팔만원으로 증가한 추이">
+          <line class="grid-line" x1="48" y1="25" x2="670" y2="25"/><line class="grid-line" x1="48" y1="75" x2="670" y2="75"/><line class="grid-line" x1="48" y1="125" x2="670" y2="125"/><line class="grid-line" x1="48" y1="175" x2="670" y2="175"/>
+          <text class="axis-text" x="0" y="29">4,300만</text><text class="axis-text" x="0" y="79">4,150만</text><text class="axis-text" x="0" y="129">4,000만</text><text class="axis-text" x="0" y="179">3,850만</text>
+          <path d="M50 170 L100 159 L150 165 L200 143 L250 150 L300 129 L350 139 L400 111 L450 118 L500 88 L550 97 L600 67 L650 52 L650 191 L50 191 Z" fill="#eff4f8"/>
+          <polyline points="50,170 100,159 150,165 200,143 250,150 300,129 350,139 400,111 450,118 500,88 550,97 600,67 650,52" fill="none" stroke="#123452" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="50,184 100,182 150,180 200,179 250,178 300,177 350,180 400,178 450,176 500,175 550,177 600,174 650,171" fill="none" stroke="#c98a2d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="650" cy="52" r="5" fill="#fff" stroke="#123452" stroke-width="3"/>
+          <rect x="572" y="20" width="92" height="24" rx="3" fill="#123452"/><text x="580" y="36" fill="#fff" font-family="Bahnschrift, Segoe UI" font-size="11">4,268만원</text>
+          <text class="axis-text" x="48" y="219">10.11</text><text class="axis-text" x="190" y="219">10.18</text><text class="axis-text" x="340" y="219">10.25</text><text class="axis-text" x="488" y="219">11.01</text><text class="axis-text" x="628" y="219">11.09</text>
+        </svg>
+        <div class="history-foot"><span>기간 수익률 <b class="up">+8.88%</b></span><span>기간 최고 42,680,000원</span></div>
+      </section>
+
+      <aside class="panel allocation" aria-labelledby="allocation-title">
+        <div><h2 id="allocation-title">자산 구성</h2><p class="sub">2026년 11월 9일 기준</p></div>
+        <div class="donut-layout">
+          <svg class="donut" viewBox="0 0 140 140" aria-label="국내주식 80.0%, 예수금 20.0%">
+            <circle class="track" cx="70" cy="70" r="60"/><circle class="a" cx="70" cy="70" r="60"/><circle class="c" cx="70" cy="70" r="60"/>
+            <g transform="rotate(90 70 70)"><text x="70" y="65" text-anchor="middle" fill="#172235" font-family="Bahnschrift, Segoe UI" font-size="21" font-weight="650">42.7M</text><text x="70" y="82" text-anchor="middle" fill="#667085" font-family="Pretendard, sans-serif" font-size="10">총자산</text></g>
+          </svg>
+          <ul class="alloc-list">
+            <li><span><i class="swatch" style="background:#123452"></i>국내주식</span><strong>80.0%</strong></li>
+            <li><span><i class="swatch" style="background:#c98a2d"></i>예수금</span><strong>20.0%</strong></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <section class="panel positions" aria-labelledby="positions-title">
+      <div class="panel-head">
+        <div><h2 id="positions-title">보유 종목<span class="count">6개</span></h2><p class="sub">선택일 장 마감 기준 보유 수량과 평가금액입니다.</p></div>
+        <button class="date-button" type="button">평가손익 순 ▾</button>
+      </div>
+      <table>
+        <thead><tr><th>종목</th><th>보유 수량</th><th>평균 단가</th><th>현재가</th><th>평가금액</th><th>전일 대비</th><th>평가손익</th><th>수익률</th></tr></thead>
+        <tbody>
+          <tr><td><div class="stock">삼성전자</div><div class="code">005930</div></td><td>120주</td><td>71,400원</td><td>82,100원</td><td>9,852,000원</td><td class="up">+168,000원</td><td class="up">+1,284,000원</td><td><span class="badge up">+15.0%</span></td></tr>
+          <tr><td><div class="stock">SK하이닉스</div><div class="code">000660</div></td><td>42주</td><td>188,500원</td><td>207,000원</td><td>8,694,000원</td><td class="up">+84,000원</td><td class="up">+777,000원</td><td><span class="badge up">+9.8%</span></td></tr>
+          <tr><td><div class="stock">TIGER 미국S&amp;P500</div><div class="code">360750</div></td><td>180주</td><td>18,420원</td><td>20,100원</td><td>3,618,000원</td><td class="down">−21,600원</td><td class="up">+302,400원</td><td><span class="badge up">+9.1%</span></td></tr>
+          <tr><td><div class="stock">카카오</div><div class="code">035720</div></td><td>65주</td><td>49,600원</td><td>46,100원</td><td>2,996,500원</td><td class="down">−39,000원</td><td class="down">−227,500원</td><td><span class="badge down">−7.1%</span></td></tr>
+        </tbody>
+      </table>
+      <div class="table-note">수량이 0인 종목과 매매·입출금 내역은 별도 거래 내역 화면에서 확인합니다.</div>
+    </section>
+  </main>
+</body>
+</html>
