@@ -24,4 +24,18 @@ public partial class MainWindow : Window
         window.ShowDialog();
         await _viewModel.InitializeCommand.ExecuteAsync(null);
     }
+
+    private void OpenBacktestButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = _serviceProvider.GetRequiredService<BacktestInputWindow>();
+        window.Owner = this;
+        window.Show();
+    }
+
+    private void OpenParameterApprovalButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = _serviceProvider.GetRequiredService<ParameterApprovalWindow>();
+        window.Owner = this;
+        window.ShowDialog();
+    }
 }

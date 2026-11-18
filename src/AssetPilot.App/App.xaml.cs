@@ -5,6 +5,9 @@ using AssetPilot.Core.Accounts;
 using AssetPilot.Core.Snapshots;
 using AssetPilot.Infrastructure.Accounts;
 using AssetPilot.Infrastructure.Snapshots;
+using AssetPilot.Infrastructure.Backtests;
+using AssetPilot.Backtest.Storage;
+using AssetPilot.Backtest.Strategy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -37,9 +40,24 @@ public partial class App : Application
                 services.AddSingleton(snapshotStore);
                 services.AddSingleton<IAccountSnapshotStore>(snapshotStore);
                 services.AddSingleton<IAccountSnapshotReader>(snapshotStore);
+                var backtestStore = new SqliteBacktestRunStore($"Data Source={Path.Combine(databaseDirectory, "assetpilot.db")}");
+                services.AddSingleton(backtestStore);
+                services.AddSingleton<IBacktestRunStore>(backtestStore);
+                services.AddSingleton<IBacktestRunExporter, BacktestRunCsvExporter>();
+                services.AddSingleton<BacktestExperimentCsvExporter>();
+                var marketDataRoot = Environment.GetEnvironmentVariable("AssetPilot__MarketDataRoot") ?? Path.Combine(databaseDirectory, "data");
+                services.AddSingleton(new ParameterDecisionStore(marketDataRoot));
 
                 services.AddSingleton<AssetHistoryViewModel>();
                 services.AddSingleton<MainViewModel>();
+                services.AddTransient<BacktestRunViewModel>();
+                services.AddTransient<BacktestExperimentViewModel>();
+                services.AddTransient<BacktestHistoryViewModel>();
+                services.AddTransient<ParameterApprovalViewModel>();
+                services.AddTransient<ParameterApprovalWindow>();
+                services.AddTransient<BacktestWindow>();
+                services.AddTransient<BacktestExperimentWindow>();
+                services.AddTransient<BacktestInputWindow>();
                 services.AddTransient<AccountManagementViewModel>();
                 services.AddTransient<AccountManagementWindow>();
                 services.AddSingleton<MainWindow>();
@@ -49,6 +67,7 @@ public partial class App : Application
         await _host.StartAsync();
 
         await _host.Services.GetRequiredService<SqliteAccountSnapshotStore>().InitializeAsync();
+        await _host.Services.GetRequiredService<SqliteBacktestRunStore>().InitializeAsync();
         var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
         await mainViewModel.InitializeCommand.ExecuteAsync(null);
 

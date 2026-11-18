@@ -1,0 +1,115 @@
+<Window x:Class="AssetPilot.App.BacktestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="백테스트 결과" Height="760" Width="1120" MinHeight="560" MinWidth="800"
+        Background="{StaticResource Brush.AppBackground}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="{StaticResource Padding.Window}">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.PageTitle}" Text="백테스트 결과"/>
+                    <TextBlock Margin="0,6,0,0" Style="{StaticResource Text.Label}" Text="ATR 단일 진입 · 일봉 신호와 5분봉 체결 · 비용 미반영"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                    <TextBlock Style="{StaticResource Text.Label}" Text="KODEX 200" HorizontalAlignment="Right"/>
+                    <TextBlock Margin="0,6,0,0" Style="{StaticResource Text.Label}" Text="실행 결과" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Grid.ColumnSpan="3" Margin="0,18,0,0" Padding="15,12" Style="{StaticResource Surface.Ledger}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock FontWeight="SemiBold" Text="ATR 단일 진입 · 실행 완료"/>
+                        <TextBlock Margin="0,3,0,0" Style="{StaticResource Text.Label}" Text="일봉 신호와 5분봉 체결 데이터를 기준으로 계산한 결과입니다."/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource Text.Label}" Text="비용 미반영"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Grid.ColumnSpan="3" Margin="0,18,0,0" Padding="18" Style="{StaticResource Surface.Ledger}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel><TextBlock Style="{StaticResource Text.Label}" Text="누적 손익"/><TextBlock Margin="0,3,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding Metrics.TotalProfit, StringFormat={}{0:N0}원}"/><TextBlock Margin="0,3,0,0" Style="{StaticResource Text.Label}" Text="{Binding Metrics.ReturnRate, StringFormat=수익률 {0:P2}}"/></StackPanel>
+                    <StackPanel Grid.Column="1"><TextBlock Style="{StaticResource Text.Label}" Text="완료 거래"/><TextBlock Margin="0,3,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding Metrics.CompletedTrades, StringFormat={}{0:N0}건}"/><TextBlock Margin="0,3,0,0" Style="{StaticResource Text.Label}" Text="청산된 거래 기준"/></StackPanel>
+                    <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Text.Label}" Text="승률"/><TextBlock Margin="0,3,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding Metrics.WinRate, StringFormat={}{0:P2}}"/><TextBlock Margin="0,3,0,0" Style="{StaticResource Text.Label}" Text="완료 거래 기준"/></StackPanel>
+                    <StackPanel Grid.Column="3"><TextBlock Style="{StaticResource Text.Label}" Text="Profit Factor"/><TextBlock Margin="0,3,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding Metrics.ProfitFactor, StringFormat={}{0:N2}}"/><TextBlock Margin="0,3,0,0" Style="{StaticResource Text.Label}" Text="총수익 ÷ 총손실"/></StackPanel>
+                    <StackPanel Grid.Column="4"><TextBlock Style="{StaticResource Text.Label}" Text="최대 낙폭 (MDD)"/><TextBlock Margin="0,3,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding Metrics.MaxDrawdown, StringFormat={}{0:N0}원}"/><TextBlock Margin="0,3,0,0" Style="{StaticResource Text.Label}" Text="백테스트 기간 기준"/></StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="3" Grid.ColumnSpan="3" Margin="0,14,0,0" Padding="18" Style="{StaticResource Surface.Ledger}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="완료 거래"/>
+                    <TextBlock Margin="0,4,0,12" Style="{StaticResource Text.Label}" Text="시간순 체결 기록입니다. 매도 체결에만 실현 손익이 표시됩니다."/>
+                    <DataGrid ItemsSource="{Binding Result.Executions}" SelectedItem="{Binding SelectedExecution}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="310">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="시각" Binding="{Binding ExecutedAt, StringFormat={}{0:yyyy.MM.dd HH:mm}}" Width="*"/>
+                            <DataGridTextColumn Header="구분" Binding="{Binding Side}" Width="100"/>
+                            <DataGridTextColumn Header="가격" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="120"/>
+                            <DataGridTextColumn Header="수량" Binding="{Binding Quantity, StringFormat={}{0:N0}}" Width="100"/>
+                            <DataGridTextColumn Header="실현 손익" Binding="{Binding RealizedProfit, StringFormat={}{0:N0}}" Width="150"/>
+                            <DataGridTextColumn Header="사유" Binding="{Binding Reason}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Margin="0,18,0,4" FontWeight="SemiBold" Text="진입 판정 로그"/>
+                    <TextBlock Margin="0,0,0,10" Style="{StaticResource Text.Label}" Text="거래가 없었던 날짜의 원인을 확인합니다."/>
+                    <DataGrid ItemsSource="{Binding Result.Diagnostics}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="240">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="날짜" Binding="{Binding TradeDate, StringFormat={}{0:yyyy.MM.dd}}" Width="120"/>
+                            <DataGridTextColumn Header="판정" Binding="{Binding DisplayName}" Width="170"/>
+                            <DataGridTextColumn Header="상세" Binding="{Binding Message}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="4" Grid.Column="2" Margin="0,14,0,0" Padding="18" Style="{StaticResource Surface.Ledger}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="실행 당시 설정"/>
+                    <TextBlock Margin="0,4,0,12" Style="{StaticResource Text.Label}" Text="이 실행 결과를 재현하기 위한 읽기 전용 기록입니다."/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Style="{StaticResource Text.Label}" Text="이동평균 기간"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.SmaPeriod}"/></StackPanel>
+                        <StackPanel Grid.Column="1"><TextBlock Style="{StaticResource Text.Label}" Text="ATR 기간"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.AtrPeriod}"/></StackPanel>
+                        <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Text.Label}" Text="매수 구간 폭"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.BuyBandAtrMultiplier, StringFormat={}± {0} ATR}"/></StackPanel>
+                        <StackPanel Grid.Column="3"><TextBlock Style="{StaticResource Text.Label}" Text="익절 거리"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.TargetAtrMultiplier, StringFormat={}{0} ATR}"/></StackPanel>
+                        <StackPanel Grid.Column="4"><TextBlock Style="{StaticResource Text.Label}" Text="손절 거리"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.StopAtrMultiplier, StringFormat={}{0} ATR}"/></StackPanel>
+                    </Grid>
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Style="{StaticResource Text.Label}" Text="시작 자금"/><TextBlock Margin="0,6,0,0" Text="{Binding StartingCash, StringFormat={}{0:N0}원}"/></StackPanel>
+                        <StackPanel Grid.Column="1"><TextBlock Style="{StaticResource Text.Label}" Text="투입 비율"/><TextBlock Margin="0,6,0,0" Text="{Binding AllocationPercent, StringFormat={}{0:N0}%}"/></StackPanel>
+                        <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Text.Label}" Text="최대 보유 기간"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.MaxHoldingDays, StringFormat={}{0}거래일}"/></StackPanel>
+                    </Grid>
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Style="{StaticResource Text.Label}" Text="기울기 비교 기간"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.SmaSlopeLookbackDays, StringFormat={}{0}거래일}"/></StackPanel>
+                        <StackPanel Grid.Column="1"><TextBlock Style="{StaticResource Text.Label}" Text="최소 SMA 이격도"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.MinimumSmaDistancePercent, StringFormat={}{0:N2}%}"/></StackPanel>
+                        <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Text.Label}" Text="단기 이동평균 기간"/><TextBlock Margin="0,6,0,0" Text="{Binding ExecutedOptions.ShortSmaPeriod, StringFormat={}{0}일}"/></StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="4" Margin="0,14,0,0" Padding="18" Style="{StaticResource Surface.Ledger}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="선택 거래의 체결 내역"/>
+                    <TextBlock Margin="0,4,0,12" Style="{StaticResource Text.Label}" Text="위 표에서 체결 한 건을 선택하면 상세 내용이 표시됩니다."/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Style="{StaticResource Text.Label}" Text="체결 시각"/><TextBlock Margin="0,5,0,12" Text="{Binding SelectedExecution.ExecutedAt, StringFormat={}{0:yyyy.MM.dd HH:mm}}"/><TextBlock Style="{StaticResource Text.Label}" Text="구분"/><TextBlock Margin="0,5,0,0" Text="{Binding SelectedExecution.Side}"/></StackPanel>
+                        <StackPanel Grid.Column="1" Margin="44,0,0,0"><TextBlock Style="{StaticResource Text.Label}" Text="체결 가격"/><TextBlock Margin="0,5,0,12" Text="{Binding SelectedExecution.Price, StringFormat={}{0:N0}원}"/><TextBlock Style="{StaticResource Text.Label}" Text="실현 손익"/><TextBlock Margin="0,5,0,0" Text="{Binding SelectedExecution.RealizedProfit, StringFormat={}{0:N0}원}"/></StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="5" Grid.ColumnSpan="3" Margin="0,14,0,0" Padding="14,10" Style="{StaticResource Surface.Ledger}">
+                <TextBlock Style="{StaticResource Text.Label}" Text="{Binding StatusMessage}"/>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Window>

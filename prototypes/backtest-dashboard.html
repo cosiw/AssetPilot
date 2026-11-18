@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AssetPilot · 백테스트</title>
+  <style>
+    :root { --ink:#172534; --muted:#657486; --line:#dce4ea; --paper:#fff; --ground:#f3f6f8; --navy:#183b5b; --blue:#1e62b7; --red:#c63c4c; --green:#187a63; --soft-blue:#eaf3fd; --soft-red:#fbedee; --radius:10px; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--ground); color:var(--ink); font:14px/1.45 "Segoe UI", "Malgun Gothic", sans-serif; }
+    .shell { max-width:1320px; margin:0 auto; padding:30px 28px 48px; }
+    .masthead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--navy); padding-bottom:18px; margin-bottom:22px; }
+    .product { color:var(--navy); font-weight:800; letter-spacing:.02em; font-size:16px; }
+    h1 { margin:3px 0 0; font-size:29px; line-height:1.2; letter-spacing:-.04em; }
+    .asof { color:var(--muted); text-align:right; font-size:12px; }
+    .grid { display:grid; grid-template-columns:340px minmax(0, 1fr); gap:18px; align-items:start; }
+    .panel { background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+    .panel-title { padding:15px 18px 12px; border-bottom:1px solid var(--line); font-size:15px; font-weight:750; }
+    .controls { padding:15px 18px 18px; }
+    .field { margin:0 0 13px; }
+    label { display:block; margin-bottom:5px; color:#455568; font-size:12px; font-weight:700; }
+    input { width:100%; padding:9px 10px; border:1px solid #bcc9d4; border-radius:6px; background:white; color:var(--ink); font:inherit; }
+    .file { display:flex; gap:7px; }
+    .file input { min-width:0; }
+    .browse { flex:0 0 auto; border:1px solid #9aabba; border-radius:6px; background:#fff; padding:0 10px; color:var(--navy); font-weight:700; }
+    .options { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:4px; }
+    .option label { font-size:11px; }
+    .run { width:100%; border:0; border-radius:6px; padding:12px; background:var(--navy); color:white; font:inherit; font-weight:800; cursor:pointer; margin-top:7px; }
+    .run:hover { background:#0e2d49; }
+    .note { color:var(--muted); font-size:11px; margin:11px 0 0; }
+    .content { display:grid; gap:18px; }
+    .summary { display:grid; grid-template-columns:1.2fr repeat(4, 1fr); }
+    .metric { padding:15px 17px; border-right:1px solid var(--line); }
+    .metric:last-child { border:0; }
+    .metric .label { color:var(--muted); font-size:12px; }
+    .metric .value { margin-top:3px; font-size:23px; font-weight:800; letter-spacing:-.04em; white-space:nowrap; }
+    .metric .sub { color:var(--muted); font-size:11px; }
+    .gain { color:var(--red); } .loss { color:var(--blue); }
+    .result-header { display:flex; align-items:center; justify-content:space-between; padding:15px 18px 11px; }
+    .result-header h2 { font-size:16px; margin:0; }
+    .badge { background:var(--soft-blue); color:var(--blue); border-radius:999px; padding:4px 9px; font-weight:700; font-size:11px; }
+    table { border-collapse:collapse; width:100%; min-width:870px; }
+    th { background:#f7f9fa; color:#536376; font-size:11px; font-weight:750; text-align:left; white-space:nowrap; }
+    th, td { padding:11px 13px; border-top:1px solid var(--line); }
+    td { white-space:nowrap; font-size:12px; }
+    td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .reason { border-radius:4px; padding:3px 6px; font-size:11px; font-weight:700; }
+    .reason.target { background:#fbecef; color:#ae2638; } .reason.stop { background:#eaf3fd; color:#1d5fae; }
+    .scroll { overflow:auto; }
+    .bottom { display:grid; grid-template-columns:1.4fr 1fr; gap:18px; }
+    .ledger { padding:14px 18px 17px; }
+    .ledger dl { display:grid; grid-template-columns:max-content 1fr; gap:7px 18px; margin:0; font-size:12px; }
+    .ledger dt { color:var(--muted); } .ledger dd { margin:0; text-align:right; font-variant-numeric:tabular-nums; }
+    .empty { padding:20px 18px; color:var(--muted); font-size:12px; }
+    .status { display:flex; align-items:center; gap:8px; color:var(--green); font-size:12px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--green); }
+    @media (max-width:900px) { .grid { grid-template-columns:1fr; } .summary { grid-template-columns:1fr 1fr; } .metric:nth-child(2) { border-right:0; } .metric:nth-child(-n+2) { border-bottom:1px solid var(--line); } .bottom { grid-template-columns:1fr; } .masthead { align-items:flex-start; flex-direction:column; gap:8px; } .asof { text-align:left; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div><div class="product">ASSETPILOT</div><h1>KODEX 200 백테스트</h1></div>
+      <div class="asof">일봉 신호 · 5분봉 체결<br>비용 차감 전 결과</div>
+    </header>
+
+    <div class="grid">
+      <aside class="panel">
+        <div class="panel-title">데이터와 전략 설정</div>
+        <form class="controls">
+          <div class="field"><label>일봉 CSV</label><div class="file"><input value="KODEX 200.csv" readonly><button type="button" class="browse">찾기</button></div></div>
+          <div class="field"><label>5분봉 CSV</label><div class="file"><input value="5분봉.csv" readonly><button type="button" class="browse">찾기</button></div></div>
+          <div class="options">
+            <div class="option"><label>이동평균 기간</label><input value="120"></div>
+            <div class="option"><label>ATR 기간</label><input value="14"></div>
+            <div class="option"><label>매수 구간 (ATR)</label><input value="± 0.5"></div>
+            <div class="option"><label>익절 배수 (ATR)</label><input value="1.5"></div>
+            <div class="option"><label>손절 배수 (ATR)</label><input value="1.0"></div>
+            <div class="option"><label>매수 수량</label><input value="1"></div>
+          </div>
+          <button class="run" type="button">백테스트 실행</button>
+          <p class="note">매수 구간과 ATR은 신호일 장 마감 후 고정됩니다. 5분봉에서 가격 도달 여부를 확인합니다.</p>
+        </form>
+      </aside>
+
+      <section class="content">
+        <section class="panel summary" aria-label="백테스트 요약">
+          <div class="metric"><div class="label">누적 손익</div><div class="value gain">+18,420원</div><div class="sub">비용 차감 전</div></div>
+          <div class="metric"><div class="label">완료 거래</div><div class="value">12건</div><div class="sub">미청산 1건</div></div>
+          <div class="metric"><div class="label">승률</div><div class="value">58.3%</div><div class="sub">익절 7 · 손절 5</div></div>
+          <div class="metric"><div class="label">평균 수익</div><div class="value gain">+1,120원</div><div class="sub">익절 거래 기준</div></div>
+          <div class="metric"><div class="label">평균 손실</div><div class="value loss">-760원</div><div class="sub">손절 거래 기준</div></div>
+        </section>
+
+        <section class="panel">
+          <div class="result-header"><div><h2>완료 거래</h2><div class="status"><span class="dot"></span>2026.10.08–2026.11.11 · 5분봉 데이터 확인됨</div></div><span class="badge">12건</span></div>
+          <div class="scroll"><table>
+            <thead><tr><th>신호일</th><th>매수 체결</th><th class="num">매수가</th><th class="num">매수 구간</th><th class="num">익절 / 손절</th><th>매도 체결</th><th>사유</th><th class="num">손익</th></tr></thead>
+            <tbody>
+              <tr><td>2026.10.12</td><td>10.13 09:05</td><td class="num">103,500원</td><td class="num">102,900–104,100</td><td class="num">105,300 / 102,300</td><td>10.13 11:20</td><td><span class="reason target">익절</span></td><td class="num gain">+1,800원</td></tr>
+              <tr><td>2026.10.21</td><td>10.22 09:00</td><td class="num">101,860원</td><td class="num">101,400–102,320</td><td class="num">103,240 / 100,940</td><td>10.23 09:00</td><td><span class="reason stop">갭 손절</span></td><td class="num loss">-1,120원</td></tr>
+              <tr><td>2026.10.30</td><td>11.02 10:35</td><td class="num">108,200원</td><td class="num">108,200–109,000</td><td class="num">109,800 / 107,120</td><td>11.03 14:15</td><td><span class="reason target">익절</span></td><td class="num gain">+1,600원</td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <div class="bottom">
+          <section class="panel"><div class="panel-title">선택 거래의 가격 계획</div><div class="ledger"><dl><dt>신호일 종가</dt><dd>103,500원</dd><dt>ATR (14)</dt><dd>1,200원</dd><dt>매수 가능 구간</dt><dd>102,900원 – 104,100원</dd><dt>실제 매수가</dt><dd>103,500원 · 1주</dd><dt>고정 익절가</dt><dd class="gain">105,300원</dd><dt>고정 손절가</dt><dd class="loss">102,300원</dd></dl></div></section>
+          <section class="panel"><div class="panel-title">실행 상태</div><div class="empty">데이터 누락 없음<br><br>미청산 포지션 1건<br>매수 예약 0건</div></section>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

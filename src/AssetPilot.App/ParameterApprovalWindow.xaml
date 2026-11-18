@@ -1,0 +1,18 @@
+<Window x:Class="AssetPilot.App.ParameterApprovalWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="전략 추천 승인" Width="520" Height="430" WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="24">
+    <TextBlock FontSize="22" FontWeight="SemiBold" Text="월간 전략 추천" />
+    <TextBlock Margin="0,8,0,16" Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+    <Grid DataContext="{Binding Recommendation}">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+      <TextBlock Text="적용 시작일"/><TextBlock Grid.Column="1" Text="{Binding EffectiveFrom, StringFormat={}{0:yyyy-MM-dd}}"/>
+      <TextBlock Grid.Row="1" Text="장기 SMA"/><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Options.SmaPeriod}"/>
+      <TextBlock Grid.Row="2" Text="ATR 기간"/><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Options.AtrPeriod}"/>
+      <TextBlock Grid.Row="3" Text="추천 근거" TextWrapping="Wrap"/><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Reason}" TextWrapping="Wrap"/>
+    </Grid>
+    <StackPanel Margin="0,24,0,0" Orientation="Horizontal">
+      <Button Width="180" Height="36" Command="{Binding ApproveCommand}" Content="이 설정 승인" />
+      <Button Width="140" Height="36" Margin="8,0,0,0" Command="{Binding RejectCommand}" Content="거절" />
+    </StackPanel>
+  </StackPanel>
+</Window>

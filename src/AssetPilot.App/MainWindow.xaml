@@ -19,9 +19,11 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Button Grid.Column="3" Margin="0,0,8,0" Style="{StaticResource Button.Secondary}" Click="OpenParameterApprovalButton_Click" Content="전략 추천" />
             <TextBlock Style="{StaticResource Text.PageTitle}" Text="보유 현황" />
-            <Button Grid.Column="1" Style="{StaticResource Button.Secondary}" Click="OpenAccountManagementButton_Click" Content="계좌 관리" />
+            <Button Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource Button.Secondary}" Click="OpenBacktestButton_Click" Content="백테스트" />
+            <Button Grid.Column="2" Style="{StaticResource Button.Secondary}" Click="OpenAccountManagementButton_Click" Content="계좌 관리" />
         </Grid>
 
         <Grid Grid.Row="1" Margin="{StaticResource Margin.SectionTop}">

@@ -1,0 +1,82 @@
+<Window x:Class="AssetPilot.App.BacktestInputWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="백테스트 실행" Height="800" Width="1080" MinHeight="600" MinWidth="800"
+        Background="{StaticResource Brush.AppBackground}">
+    <Window.Resources>
+        <Style TargetType="TextBox" BasedOn="{StaticResource TextBox.Backtest}" />
+    </Window.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="{StaticResource Padding.Window}">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="290"/></Grid.ColumnDefinitions>
+            <Grid Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Style="{StaticResource Text.PageTitle}" Text="백테스트 실행"/><TextBlock Margin="0,6,0,0" Style="{StaticResource Text.Label}" Text="일봉으로 신호를 계산하고 5분봉으로 매수·매도를 재현합니다."/></StackPanel>
+                <TextBlock Grid.Column="1" VerticalAlignment="Bottom" Style="{StaticResource Text.Label}" Text="ATR 단일 진입"/>
+            </Grid>
+            <Border Grid.Row="1" Margin="0,18,18,0" Padding="18" Style="{StaticResource Surface.Ledger}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="실행 설정"/>
+                    <TextBlock Margin="0,4,0,14" Style="{StaticResource Text.Label}" Text="각 항목의 설명과 예시를 보고 입력하세요."/>
+                    <TextBlock Style="{StaticResource Text.Label}" Text="일봉 CSV 파일"/>
+                    <TextBlock Margin="0,2,0,6" Style="{StaticResource Text.Label}" Text="매수 신호를 계산할 일별 가격 데이터입니다."/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding DailyCsvPath, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="2" MinWidth="86" Style="{StaticResource Button.Secondary}" Click="SelectDailyCsvButton_Click" Content="파일 선택"/>
+                    </Grid>
+                    <TextBlock Margin="0,8,0,2" Style="{StaticResource Text.Label}" Text="예시: 날짜, 시가, 고가, 저가, 종가가 포함된 일봉 CSV"/>
+                    <Separator Margin="0,14,0,14"/>
+                    <TextBlock Style="{StaticResource Text.Label}" Text="5분봉 CSV 파일"/>
+                    <TextBlock Margin="0,2,0,6" Style="{StaticResource Text.Label}" Text="실제 체결 가격과 익절·손절 도달 여부를 확인할 데이터입니다."/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding FiveMinuteCsvPath, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="2" MinWidth="86" Style="{StaticResource Button.Secondary}" Click="SelectFiveMinuteCsvButton_Click" Content="파일 선택"/>
+                    </Grid>
+                    <TextBlock Margin="0,8,0,2" Style="{StaticResource Text.Label}" Text="예시: 일봉 파일과 같은 종목·기간의 5분봉 CSV"/>
+                    <Separator Margin="0,14,0,14"/>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,8,0"><TextBlock Style="{StaticResource Text.Label}" Text="시작 자금 (원)"/><TextBlock Margin="0,2,0,6" Style="{StaticResource Text.Label}" Text="백테스트 시작 시 전체 현금입니다."/><TextBox Text="{Binding StartingCash, UpdateSourceTrigger=PropertyChanged}"/></StackPanel>
+                        <StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock Style="{StaticResource Text.Label}" Text="총 투입 비율 (%)"/><TextBlock Margin="0,2,0,6" Style="{StaticResource Text.Label}" Text="한 번의 매수에 사용할 비율입니다."/><TextBox Text="{Binding AllocationPercent, UpdateSourceTrigger=PropertyChanged}"/></StackPanel>
+                    </Grid>
+                    <Separator Margin="0,14,0,14"/>
+                    <TextBlock FontWeight="SemiBold" Text="기준 진입 전략 (고정)"/>
+                    <TextBlock Margin="0,4,0,10" Style="{StaticResource Text.Label}" Text="장기 SMA 120일, 단기 SMA 5일, ATR 14일, 기울기 5일, 이격 1%, 매수 밴드 0.5 ATR과 기존 5분봉 확인 규칙은 변경하지 않습니다." TextWrapping="Wrap"/>
+                    <TextBlock FontWeight="SemiBold" Text="청산 규칙 설정"/>
+                    <TextBlock Margin="0,4,0,10" Style="{StaticResource Text.Label}" Text="아래 세 값만 변경하여 백테스트 결과를 비교합니다."/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,5,0"><TextBlock Style="{StaticResource Text.Label}" Text="익절 거리 (ATR)"/><TextBox Margin="0,6,0,0" Text="{Binding TargetAtrMultiplier, UpdateSourceTrigger=LostFocus}"/></StackPanel>
+                        <StackPanel Grid.Column="1" Margin="5,0,0,0"><TextBlock Style="{StaticResource Text.Label}" Text="손절 거리 (ATR)"/><TextBox Margin="0,6,0,0" Text="{Binding StopAtrMultiplier, UpdateSourceTrigger=LostFocus}"/></StackPanel>
+                    </Grid>
+                    <StackPanel Margin="0,14,0,0">
+                        <TextBlock Style="{StaticResource Text.Label}" Text="최대 보유 기간 (거래일)"/>
+                        <TextBlock Margin="0,2,0,6" Style="{StaticResource Text.Label}" Text="익절·손절되지 않으면 마지막 허용 거래일의 종가로 청산합니다."/>
+                        <TextBox Width="130" Text="{Binding MaxHoldingDays, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <WrapPanel Margin="0,20,0,0">
+                        <Button Margin="0,0,8,0" HorizontalAlignment="Left" Style="{StaticResource Button.Primary}" Command="{Binding RunCommand}" Content="백테스트 실행"/>
+                        <Button HorizontalAlignment="Left" Style="{StaticResource Button.Secondary}" Click="OpenExperimentWindowButton_Click" Content="청산 파라미터 실험"/>
+                    </WrapPanel>
+                    <TextBlock Margin="0,10,0,0" Style="{StaticResource Text.StatusMessage}" Text="{Binding StatusMessage}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Margin="0,18,0,0" Padding="18" Style="{StaticResource Surface.Ledger}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="입력 순서"/>
+                    <TextBlock Margin="0,8,0,0" FontWeight="SemiBold" Text="1. 일봉 파일 선택"/>
+                    <TextBlock Margin="0,2,0,10" Style="{StaticResource Text.Label}" Text="언제 매수 신호가 발생했는지 계산합니다." TextWrapping="Wrap"/>
+                    <TextBlock FontWeight="SemiBold" Text="2. 5분봉 파일 선택"/>
+                    <TextBlock Margin="0,2,0,10" Style="{StaticResource Text.Label}" Text="신호 다음 거래일부터 실제 체결을 재현합니다." TextWrapping="Wrap"/>
+                    <TextBlock FontWeight="SemiBold" Text="3. 자금과 전략 조건 입력"/>
+                    <TextBlock Margin="0,2,0,14" Style="{StaticResource Text.Label}" Text="매수 수량과 가격 구간을 계산합니다." TextWrapping="Wrap"/>
+                    <Separator Margin="0,0,0,12"/>
+                    <TextBlock FontWeight="SemiBold" Text="파일은 무엇이 다른가요?"/>
+                    <TextBlock Margin="0,4,0,0" Style="{StaticResource Text.Label}" Text="일봉은 하루에 한 줄, 5분봉은 5분마다 한 줄입니다. 두 파일은 같은 종목의 데이터여야 합니다." TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Window>

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AssetPilot.App\AssetPilot.App.csproj" />
     <ProjectReference Include="..\..\src\AssetPilot.Core\AssetPilot.Core.csproj" />
+    <ProjectReference Include="..\..\src\AssetPilot.Backtest\AssetPilot.Backtest.csproj" />
   </ItemGroup>
 
 </Project>

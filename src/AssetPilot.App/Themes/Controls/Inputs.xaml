@@ -23,6 +23,40 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="TextBox.Backtest" TargetType="TextBox" BasedOn="{StaticResource TextBox.Standard}">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="11,0" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Strong}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="InputBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="InputBorder" Property="BorderBrush" Value="{DynamicResource Brush.Focus}" />
+                            <Setter TargetName="InputBorder" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsReadOnly" Value="True">
+                            <Setter TargetName="InputBorder" Property="Background" Value="{DynamicResource Brush.Selection.Background}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="InputBorder" Property="Opacity" Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="PasswordBox.Standard" TargetType="PasswordBox">
         <Setter Property="Height" Value="38" />
         <Setter Property="Padding" Value="10,0" />

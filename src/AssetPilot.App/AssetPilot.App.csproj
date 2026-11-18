@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AssetPilot.Core\AssetPilot.Core.csproj" />
+    <ProjectReference Include="..\AssetPilot.Backtest\AssetPilot.Backtest.csproj" />
     <ProjectReference Include="..\AssetPilot.Infrastructure\AssetPilot.Infrastructure.csproj" />
   </ItemGroup>
 

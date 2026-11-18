@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AssetPilot · 백테스트 실행</title>
+  <style>
+    :root { --ink:#172534; --muted:#657486; --line:#dce4ea; --paper:#fff; --ground:#f3f6f8; --navy:#183b5b; --blue:#1e62b7; --soft-blue:#eaf3fd; --soft-green:#ebf7f2; --green:#187a63; --radius:10px; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--ground); color:var(--ink); font:14px/1.5 "Segoe UI", "Malgun Gothic", sans-serif; }
+    .shell { max-width:1120px; margin:0 auto; padding:30px 28px 48px; }
+    .header { display:flex; align-items:end; justify-content:space-between; padding-bottom:18px; margin-bottom:22px; border-bottom:2px solid var(--navy); }
+    .brand { color:var(--navy); font-size:16px; font-weight:800; letter-spacing:.02em; }
+    h1 { margin:3px 0 0; font-size:29px; letter-spacing:-.04em; }
+    .header p { margin:0; color:var(--muted); font-size:12px; text-align:right; }
+    .layout { display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:18px; align-items:start; }
+    .card { overflow:hidden; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); }
+    .card-title { padding:15px 18px; border-bottom:1px solid var(--line); font-weight:800; }
+    .card-title small { display:block; margin-top:2px; color:var(--muted); font-size:12px; font-weight:400; }
+    .form { padding:2px 18px 18px; }
+    .field { padding:15px 0; border-bottom:1px solid var(--line); }
+    .field:last-child { border-bottom:0; }
+    label { display:flex; align-items:center; gap:7px; color:#34475a; font-size:13px; font-weight:800; }
+    .required { padding:1px 5px; border-radius:4px; background:var(--soft-blue); color:var(--blue); font-size:10px; }
+    .description { margin:5px 0 9px; color:var(--muted); font-size:12px; }
+    .input-row { display:flex; gap:8px; }
+    input { min-width:0; width:100%; padding:10px 11px; border:1px solid #bcc9d4; border-radius:6px; color:var(--ink); font:inherit; }
+    .browse { flex:0 0 auto; padding:0 12px; border:1px solid #9aabba; border-radius:6px; background:#fff; color:var(--navy); font:inherit; font-weight:800; }
+    .example { display:flex; gap:6px; align-items:flex-start; margin-top:8px; color:#536376; font-size:11px; }
+    .example b { flex:0 0 auto; color:var(--blue); }
+    .numbers { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .unit { position:relative; }
+    .unit input { padding-right:42px; }
+    .unit span { position:absolute; top:10px; right:11px; color:var(--muted); font-size:12px; }
+    .run { width:100%; margin-top:16px; padding:12px; border:0; border-radius:6px; background:var(--navy); color:#fff; font:inherit; font-weight:800; cursor:pointer; }
+    .run:hover { background:#0e2d49; }
+    .note { margin:10px 0 0; color:var(--muted); font-size:11px; text-align:center; }
+    .help { padding:16px 18px 18px; }
+    .help h2 { margin:0 0 4px; font-size:16px; }
+    .help > p { margin:0 0 14px; color:var(--muted); font-size:12px; }
+    .step { position:relative; padding:0 0 17px 31px; }
+    .step:last-child { padding-bottom:0; }
+    .step::before { content:attr(data-step); position:absolute; left:0; top:0; display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:var(--soft-blue); color:var(--blue); font-size:11px; font-weight:800; }
+    .step:not(:last-child)::after { content:""; position:absolute; left:10px; top:25px; bottom:2px; width:1px; background:var(--line); }
+    .step b { display:block; font-size:12px; }
+    .step span { display:block; margin-top:2px; color:var(--muted); font-size:11px; }
+    .tip { margin-top:18px; padding:12px; border-radius:7px; background:var(--soft-green); color:#256653; font-size:12px; }
+    .tip b { display:block; margin-bottom:2px; }
+    @media (max-width:760px) { .shell { padding:22px 16px; } .header { align-items:start; flex-direction:column; gap:8px; } .header p { text-align:left; } .layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="header">
+      <div><div class="brand">ASSETPILOT</div><h1>백테스트 실행</h1></div>
+      <p>일봉으로 신호를 계산하고<br>5분봉으로 매수·매도를 재현합니다.</p>
+    </header>
+
+    <div class="layout">
+      <section class="card">
+        <div class="card-title">실행 설정 <small>각 항목 아래의 설명과 예시를 보고 입력하세요.</small></div>
+        <form class="form">
+          <div class="field">
+            <label for="daily">일봉 CSV 파일 <span class="required">필수</span></label>
+            <p class="description">매수 신호를 계산할 일별 가격 데이터 파일입니다.</p>
+            <div class="input-row"><input id="daily" value="C:\data\KODEX200_daily.csv"><button class="browse" type="button">파일 찾기</button></div>
+            <div class="example"><b>예시</b><span>날짜, 시가, 고가, 저가, 종가가 포함된 KODEX 200 일봉 CSV</span></div>
+          </div>
+
+          <div class="field">
+            <label for="five-minute">5분봉 CSV 파일 <span class="required">필수</span></label>
+            <p class="description">신호 발생 후 실제 체결 가격과 익절·손절 도달 여부를 확인할 5분 단위 가격 데이터입니다.</p>
+            <div class="input-row"><input id="five-minute" value="C:\data\KODEX200_5min.csv"><button class="browse" type="button">파일 찾기</button></div>
+            <div class="example"><b>예시</b><span>일봉 파일과 같은 종목·같은 기간을 포함하는 5분봉 CSV</span></div>
+          </div>
+
+          <div class="field">
+            <div class="numbers">
+              <div>
+                <label for="cash">시작 자금 <span class="required">필수</span></label>
+                <p class="description">백테스트를 시작할 때 보유한 전체 현금입니다.</p>
+                <div class="unit"><input id="cash" value="10,000,000" inputmode="numeric"><span>원</span></div>
+                <div class="example"><b>예시</b><span>1,000만 원</span></div>
+              </div>
+              <div>
+                <label for="allocation">총 투입 비율 <span class="required">필수</span></label>
+                <p class="description">한 번의 매수에 시작 자금 중 사용할 비율입니다.</p>
+                <div class="unit"><input id="allocation" value="20" inputmode="numeric"><span>%</span></div>
+                <div class="example"><b>예시</b><span>20%면 1,000만 원 중 최대 200만 원 매수</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>ATR 단일 진입 전략 설정 <span class="required">필수</span></label>
+            <p class="description">일봉 데이터로 매수 신호와 매수·매도 가격을 계산하는 기준입니다.</p>
+            <div class="numbers">
+              <div>
+                <label for="moving-average">이동평균 기간</label>
+                <p class="description">추세를 판단할 때 사용할 일봉 개수입니다.</p>
+                <input id="moving-average" value="120" inputmode="numeric">
+                <div class="example"><b>예시</b><span>120이면 최근 120일 평균 종가를 사용</span></div>
+              </div>
+              <div>
+                <label for="atr-period">ATR 기간</label>
+                <p class="description">변동성을 계산할 때 사용할 일봉 개수입니다.</p>
+                <input id="atr-period" value="14" inputmode="numeric">
+                <div class="example"><b>예시</b><span>14일 기준 평균 변동 폭</span></div>
+              </div>
+              <div>
+                <label for="entry-band">매수 구간 폭</label>
+                <p class="description">신호일 종가를 기준으로 매수 가능한 가격 범위입니다.</p>
+                <div class="unit"><input id="entry-band" value="0.5" inputmode="decimal"><span>ATR</span></div>
+                <div class="example"><b>예시</b><span>± 0.5 ATR이면 신호일 종가의 위·아래 0.5 ATR</span></div>
+              </div>
+              <div>
+                <label for="profit-target">익절 거리</label>
+                <p class="description">평균 매수가에서 이만큼 오르면 매도합니다.</p>
+                <div class="unit"><input id="profit-target" value="1.5" inputmode="decimal"><span>ATR</span></div>
+                <div class="example"><b>예시</b><span>1.5 ATR 상승 시 익절</span></div>
+              </div>
+              <div>
+                <label for="stop-loss">손절 거리</label>
+                <p class="description">평균 매수가에서 이만큼 내리면 매도합니다.</p>
+                <div class="unit"><input id="stop-loss" value="1.0" inputmode="decimal"><span>ATR</span></div>
+                <div class="example"><b>예시</b><span>1.0 ATR 하락 시 손절</span></div>
+              </div>
+            </div>
+          </div>
+
+          <button class="run" type="button">백테스트 실행</button>
+          <p class="note">수수료와 세금은 아직 결과에 반영되지 않습니다.</p>
+        </form>
+      </section>
+
+      <aside class="card">
+        <div class="help">
+          <h2>입력 순서</h2>
+          <p>파일과 자금 설정만 하면 실행할 수 있습니다.</p>
+          <div class="step" data-step="1"><b>일봉 파일 선택</b><span>언제 매수 신호가 발생했는지 계산합니다.</span></div>
+          <div class="step" data-step="2"><b>5분봉 파일 선택</b><span>신호 다음 거래일부터 실제 체결을 재현합니다.</span></div>
+          <div class="step" data-step="3"><b>자금과 비율 입력</b><span>매수 가능한 수량을 계산합니다.</span></div>
+          <div class="tip"><b>파일은 무엇이 달라야 하나요?</b>일봉은 하루에 한 줄, 5분봉은 5분마다 한 줄입니다. 두 파일은 같은 종목의 데이터여야 합니다.</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

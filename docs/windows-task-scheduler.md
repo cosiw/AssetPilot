@@ -2,6 +2,16 @@
 
 `AssetPilot.SnapshotWorker`는 실행할 때마다 한 번만 동작하고 종료한다. KST 기준 평일 16:00~24:00 외에는 API를 호출하지 않고 성공 코드(`0`)로 종료한다.
 
+## 시장 데이터 Worker
+
+`AssetPilot.MarketDataWorker`는 KODEX 200의 일봉과 5분봉을 수집하는 별도 단발 작업이다. 계좌 스냅샷 작업과 분리해 등록한다.
+
+- 트리거: 월요일~금요일 `16:05` 시작, 실패 시 `10분` 간격으로 최대 `3회` 다시 시작
+- 동작: 배포된 `AssetPilot.MarketDataWorker.exe` 또는 `dotnet AssetPilot.MarketDataWorker.dll`
+- 실행 계정: 키움 Credential Manager를 소유한 현재 Windows 사용자
+- 데이터 위치: 기본 `%LOCALAPPDATA%\\AssetPilot\\data`; 다른 위치가 필요하면 `AssetPilot__MarketDataRoot` 환경 변수 지정
+- 동시 실행: 이미 실행 중이면 새 인스턴스를 시작하지 않음
+
 ## 배포
 
 PowerShell에서 다음 명령을 실행한다.
